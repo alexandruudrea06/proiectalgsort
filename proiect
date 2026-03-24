@@ -271,6 +271,38 @@ def main():
         if t:
             print("{:<15} {:>15}".format(algo_name, f"{t:.2f}s"))
     
+    
+    print("\n" + "="*60)
+    print("MASSIVE ARRAYS (10M - 100M elements)")
+    print("="*60)
+    print("="*60)
+    
+    sizes = [10000000, 50000000, 100000000]  # 10M, 50M, 100M
+    algorithms = ['Merge Sort', 'Quick Sort', 'Heap Sort', 'Timsort']
+    
+    print("\n{:<15} {:>15} {:>15} {:>15}".format("Algorithm", "10,000,000", "50,000,000", "100,000,000"))
+    print("-" * 65)
+    
+    for algo_name in algorithms:
+        row = [algo_name]
+        for size in sizes:
+            print(f"  Testing {algo_name} on size {size}...")
+            arr = generate_data(size, "random")
+            algo = getattr(SortingAlgorithms, algo_name.lower().replace(' ', '_'))
+            
+            start = time.time()
+            result = algo(arr)
+            end = time.time()
+            
+            t = end - start
+            if t < 60:
+                row.append(f"{t:.0f}s")
+            else:
+                row.append(f"{t/60:.1f}min")
+        
+        print("{:<15} {:>15} {:>15} {:>15}".format(row[0], row[1], row[2], row[3]))
+        
+        
     print_section("RESULTS: Different Data Types (Size 100,000)")
     print("\n{:<15} {:>12} {:>12} {:>12}".format("Algorithm", "Integers", "Floats", "Strings"))
     print("-" * 55)
@@ -295,14 +327,7 @@ def main():
         
         print("{:<15} {:>12} {:>12} {:>12}".format(row[0], row[1], row[2], row[3]))
     
-    print_section("SUMMARY")
-    print("\nKey Findings:")
-    print("-" * 50)
-    print("1. Timsort is the fastest algorithm across all test scenarios")
-    print("2. Quick Sort degrades on sorted data (387x slower than Timsort)")
-    print("3. O(n²) algorithms become impractical beyond 50,000 elements")
-    print("4. Timsort handles half-sorted data 7.6x faster than Quick Sort")
-    print("5. For 100M elements, Timsort takes 2.1 minutes vs 10+ minutes for others")
+    
 
 
 if __name__ == "__main__":
