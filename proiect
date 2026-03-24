@@ -1,7 +1,6 @@
 import time
 import random
 import string
-import sys
 
 class SortingAlgorithms:
     @staticmethod
@@ -44,7 +43,6 @@ class SortingAlgorithms:
     
     @staticmethod
     def merge_sort(arr):
-        arr = arr.copy()
         if len(arr) <= 1:
             return arr
         mid = len(arr) // 2
@@ -69,18 +67,13 @@ class SortingAlgorithms:
     
     @staticmethod
     def quick_sort(arr):
-        arr = arr.copy()
-        return SortingAlgorithms._quick_sort_helper(arr)
-    
-    @staticmethod
-    def _quick_sort_helper(arr):
         if len(arr) <= 1:
             return arr
         pivot = arr[len(arr) // 2]
         left = [x for x in arr if x < pivot]
         middle = [x for x in arr if x == pivot]
         right = [x for x in arr if x > pivot]
-        return SortingAlgorithms._quick_sort_helper(left) + middle + SortingAlgorithms._quick_sort_helper(right)
+        return SortingAlgorithms.quick_sort(left) + middle + SortingAlgorithms.quick_sort(right)
     
     @staticmethod
     def heap_sort(arr):
@@ -111,304 +104,143 @@ class SortingAlgorithms:
         return sorted(arr)
 
 
-class TestDataGenerator:
-    @staticmethod
-    def random_integers(size, min_val=0, max_val=1000000):
-        return [random.randint(min_val, max_val) for _ in range(size)]
-    
-    @staticmethod
-    def sorted_integers(size):
+def generate_data(size, data_type="random"):
+    if data_type == "random":
+        return [random.randint(0, 10000) for _ in range(size)]
+    elif data_type == "sorted":
         return list(range(size))
-    
-    @staticmethod
-    def reverse_sorted_integers(size):
+    elif data_type == "reverse":
         return list(range(size-1, -1, -1))
-    
-    @staticmethod
-    def almost_sorted_integers(size, disorder_percentage=2):
+    elif data_type == "almost_sorted":
         arr = list(range(size))
-        num_swaps = int(size * disorder_percentage / 100)
-        for _ in range(num_swaps):
+        for _ in range(int(size * 0.02)):
             i, j = random.sample(range(size), 2)
             arr[i], arr[j] = arr[j], arr[i]
         return arr
-    
-    @staticmethod
-    def half_sorted_integers(size):
+    elif data_type == "half_sorted":
         half = size // 2
-        sorted_part = list(range(half))
-        random_part = [random.randint(half, size*2) for _ in range(size - half)]
-        return sorted_part + random_part
-    
-    @staticmethod
-    def few_unique_integers(size, unique_count=10):
-        return [random.randint(0, unique_count-1) for _ in range(size)]
-    
-    @staticmethod
-    def random_floats(size):
+        return list(range(half)) + [random.randint(half, size*2) for _ in range(size - half)]
+    elif data_type == "few_unique":
+        return [random.randint(0, 9) for _ in range(size)]
+    elif data_type == "floats":
         return [random.uniform(0, 1000) for _ in range(size)]
-    
-    @staticmethod
-    def random_strings(size, str_length=10):
-        letters = string.ascii_lowercase
-        return [''.join(random.choice(letters) for _ in range(str_length)) for _ in range(size)]
-    
-    @staticmethod
-    def many_small_lists(num_lists, size):
-        return [[random.randint(0, 1000) for _ in range(size)] for _ in range(num_lists)]
+    elif data_type == "strings":
+        return [''.join(random.choice('abcdefghijklmnopqrstuvwxyz') for _ in range(10)) for _ in range(size)]
 
 
-class SortingTester:
-    def __init__(self):
-        self.algorithms = {
-            'Bubble Sort': SortingAlgorithms.bubble_sort,
-            'Insertion Sort': SortingAlgorithms.insertion_sort,
-            'Selection Sort': SortingAlgorithms.selection_sort,
-            'Merge Sort': SortingAlgorithms.merge_sort,
-            'Quick Sort': SortingAlgorithms.quick_sort,
-            'Heap Sort': SortingAlgorithms.heap_sort,
-            'Timsort': SortingAlgorithms.timsort
-        }
-        self.results = {}
-    
-    def test_algorithm(self, algo_name, algo_func, arr):
-        try:
-            start_time = time.time()
-            result = algo_func(arr)
-            end_time = time.time()
-            
-            if len(arr) <= 1000:
-                assert result == sorted(arr), f"{algo_name} failed!"
-            
-            return end_time - start_time
-        except Exception as e:
-            print(f"  Error in {algo_name}: {e}")
-            return None
-    
-    def test_many_small(self, num_lists, sizes):
-        print("\n" + "="*60)
-        print("TESTING: Many Small Lists")
-        print("="*60)
-        
-        results = {}
-        for size in sizes:
-            print(f"\n--- Size: {size} ({num_lists} lists) ---")
-            arrays = TestDataGenerator.many_small_lists(num_lists, size)
-            
-            for algo_name, algo_func in self.algorithms.items():
-                if size > 50 and algo_name in ['Bubble Sort', 'Insertion Sort', 'Selection Sort']:
-                    print(f"  {algo_name}: SKIPPED (too slow)")
-                    continue
-                
-                total_time = 0
-                for arr in arrays[:1000]:
-                    time_taken = self.test_algorithm(algo_name, algo_func, arr)
-                    if time_taken:
-                        total_time += time_taken
-                
-                results[f"{algo_name}_{size}"] = total_time
-                print(f"  {algo_name}: {total_time:.1f}s")
-        
-        return results
-    
-    def test_medium_arrays(self, sizes):
-        print("\n" + "="*60)
-        print("TESTING: Medium Arrays (Random Data)")
-        print("="*60)
-        
-        results = {}
-        for size in sizes:
-            print(f"\n--- Size: {size} ---")
-            arr = TestDataGenerator.random_integers(size)
-            
-            for algo_name, algo_func in self.algorithms.items():
-                if size > 10000 and algo_name in ['Bubble Sort', 'Insertion Sort', 'Selection Sort']:
-                    print(f"  {algo_name}: SKIPPED (too slow)")
-                    continue
-                
-                time_taken = self.test_algorithm(algo_name, algo_func, arr)
-                if time_taken:
-                    results[f"{algo_name}_{size}"] = time_taken
-                    print(f"  {algo_name}: {time_taken:.3f}s")
-        
-        return results
-    
-    def test_large_arrays(self, sizes):
-        print("\n" + "="*60)
-        print("TESTING: Large Arrays (Random Data)")
-        print("="*60)
-        
-        results = {}
-        for size in sizes:
-            print(f"\n--- Size: {size} ---")
-            arr = TestDataGenerator.random_integers(size)
-            
-            for algo_name, algo_func in self.algorithms.items():
-                if algo_name in ['Bubble Sort', 'Insertion Sort', 'Selection Sort']:
-                    print(f"  {algo_name}: SKIPPED (too slow)")
-                    continue
-                
-                time_taken = self.test_algorithm(algo_name, algo_func, arr)
-                if time_taken:
-                    results[f"{algo_name}_{size}"] = time_taken
-                    print(f"  {algo_name}: {time_taken:.2f}s")
-        
-        return results
-    
-    def test_data_structures(self, size):
-        print("\n" + "="*60)
-        print(f"TESTING: Different Data Structures (Size: {size})")
-        print("="*60)
-        
-        structures = {
-            'Random': TestDataGenerator.random_integers(size),
-            'Sorted': TestDataGenerator.sorted_integers(size),
-            'Reverse': TestDataGenerator.reverse_sorted_integers(size),
-            '98% Sorted': TestDataGenerator.almost_sorted_integers(size, 2),
-            'Few Unique': TestDataGenerator.few_unique_integers(size)
-        }
-        
-        results = {}
-        for struct_name, arr in structures.items():
-            print(f"\n--- {struct_name} ---")
-            
-            for algo_name, algo_func in self.algorithms.items():
-                if algo_name in ['Bubble Sort', 'Insertion Sort', 'Selection Sort']:
-                    continue
-                
-                time_taken = self.test_algorithm(algo_name, algo_func, arr)
-                if time_taken:
-                    results[f"{algo_name}_{struct_name}"] = time_taken
-                    print(f"  {algo_name}: {time_taken:.2f}s")
-        
-        return results
-    
-    def test_half_sorted(self, size):
-        print("\n" + "="*60)
-        print(f"TESTING: Half Sorted Arrays (Size: {size})")
-        print("="*60)
-        
-        arr = TestDataGenerator.half_sorted_integers(size)
-        results = {}
-        
-        for algo_name, algo_func in self.algorithms.items():
-            if algo_name in ['Bubble Sort', 'Insertion Sort', 'Selection Sort']:
-                continue
-            
-            time_taken = self.test_algorithm(algo_name, algo_func, arr)
-            if time_taken:
-                results[algo_name] = time_taken
-                print(f"  {algo_name}: {time_taken:.2f}s")
-        
-        return results
-    
-    def test_data_types(self, size):
-        print("\n" + "="*60)
-        print(f"TESTING: Different Data Types (Size: {size})")
-        print("="*60)
-        
-        data_types = {
-            'Integers': TestDataGenerator.random_integers(size, 0, 10000),
-            'Floats': TestDataGenerator.random_floats(size),
-            'Strings': TestDataGenerator.random_strings(size, 10)
-        }
-        
-        results = {}
-        for dtype_name, arr in data_types.items():
-            print(f"\n--- {dtype_name} ---")
-            
-            for algo_name, algo_func in self.algorithms.items():
-                if algo_name in ['Bubble Sort', 'Insertion Sort', 'Selection Sort']:
-                    continue
-                
-                time_taken = self.test_algorithm(algo_name, algo_func, arr)
-                if time_taken:
-                    results[f"{algo_name}_{dtype_name}"] = time_taken
-                    print(f"  {algo_name}: {time_taken:.2f}s")
-        
-        return results
-    
-    def run_all_tests(self):
-        print("\n" + "="*60)
-        print("SORTING ALGORITHMS EXPERIMENTAL COMPARISON")
-        print("="*60)
-        print(f"Python version: {sys.version}")
-        
-        random.seed(42)
-        
-        all_results = {}
-        
-        all_results['many_small'] = self.test_many_small(100000, [20, 30, 50, 100])
-        all_results['medium'] = self.test_medium_arrays([1000, 5000, 10000, 50000])
-        all_results['large'] = self.test_large_arrays([100000, 500000, 1000000])
-        all_results['structures'] = self.test_data_structures(1000000)
-        all_results['half_sorted'] = self.test_half_sorted(1000000)
-        all_results['data_types'] = self.test_data_types(100000)
-        
-        return all_results
+def test_algorithm(algo, arr):
+    try:
+        start = time.time()
+        result = algo(arr)
+        end = time.time()
+        if len(arr) <= 1000:
+            assert result == sorted(arr)
+        return end - start
+    except:
+        return None
 
 
-def print_results_summary(results):
-    print("\n" + "="*60)
-    print("RESULTS SUMMARY")
-    print("="*60)
-    
-    print("\n--- Many Small Lists (100,000 lists) ---")
-    for size in [20, 30, 50, 100]:
-        print(f"\nSize {size}:")
-        for algo in ['Bubble Sort', 'Insertion Sort', 'Selection Sort', 'Merge Sort', 'Quick Sort', 'Heap Sort', 'Timsort']:
-            key = f"{algo}_{size}"
-            if key in results.get('many_small', {}):
-                print(f"  {algo}: {results['many_small'][key]:.1f}s")
-    
-    print("\n--- Medium Arrays (Random Data) ---")
-    for size in [1000, 5000, 10000, 50000]:
-        print(f"\nSize {size}:")
-        for algo in ['Bubble Sort', 'Insertion Sort', 'Selection Sort', 'Merge Sort', 'Quick Sort', 'Heap Sort', 'Timsort']:
-            key = f"{algo}_{size}"
-            if key in results.get('medium', {}):
-                print(f"  {algo}: {results['medium'][key]:.3f}s")
-    
-    print("\n--- Large Arrays (Random Data) ---")
-    for size in [100000, 500000, 1000000]:
-        print(f"\nSize {size}:")
-        for algo in ['Merge Sort', 'Quick Sort', 'Heap Sort', 'Timsort']:
-            key = f"{algo}_{size}"
-            if key in results.get('large', {}):
-                print(f"  {algo}: {results['large'][key]:.2f}s")
-    
-    print("\n--- Different Data Structures (1,000,000) ---")
-    structures = ['Random', 'Sorted', 'Reverse', '98% Sorted', 'Few Unique']
-    for struct in structures:
-        print(f"\n{struct}:")
-        for algo in ['Merge Sort', 'Quick Sort', 'Heap Sort', 'Timsort']:
-            key = f"{algo}_{struct}"
-            if key in results.get('structures', {}):
-                print(f"  {algo}: {results['structures'][key]:.2f}s")
-    
-    print("\n--- Half Sorted (1,000,000) ---")
-    for algo in ['Merge Sort', 'Quick Sort', 'Heap Sort', 'Timsort']:
-        if algo in results.get('half_sorted', {}):
-            print(f"  {algo}: {results['half_sorted'][algo]:.2f}s")
-    
-    print("\n--- Different Data Types (100,000) ---")
-    for dtype in ['Integers', 'Floats', 'Strings']:
-        print(f"\n{dtype}:")
-        for algo in ['Merge Sort', 'Quick Sort', 'Heap Sort', 'Timsort']:
-            key = f"{algo}_{dtype}"
-            if key in results.get('data_types', {}):
-                print(f"  {algo}: {results['data_types'][key]:.2f}s")
+def run_test(name, algo, size, data_type="random"):
+    arr = generate_data(size, data_type)
+    time_taken = test_algorithm(algo, arr)
+    if time_taken:
+        print(f"  {name:15s}: {time_taken:.4f}s")
+    return time_taken
 
 
 def main():
-    tester = SortingTester()
-    results = tester.run_all_tests()
-    print_results_summary(results)
+    print("="*60)
+    print("SORTING ALGORITHMS COMPARISON")
+    print("="*60)
+    
+    algorithms = {
+        'Bubble Sort': SortingAlgorithms.bubble_sort,
+        'Insertion Sort': SortingAlgorithms.insertion_sort,
+        'Selection Sort': SortingAlgorithms.selection_sort,
+        'Merge Sort': SortingAlgorithms.merge_sort,
+        'Quick Sort': SortingAlgorithms.quick_sort,
+        'Heap Sort': SortingAlgorithms.heap_sort,
+        'Timsort': SortingAlgorithms.timsort
+    }
+    
+    # 1. Many Small Lists
+    print("\n" + "-"*50)
+    print("MANY SMALL LISTS (100,000 lists)")
+    print("-"*50)
+    for size in [20, 30, 50, 100]:
+        print(f"\nSize {size}:")
+        for name, algo in algorithms.items():
+            if size > 50 and name in ['Bubble Sort', 'Insertion Sort', 'Selection Sort']:
+                print(f"  {name:15s}: SKIPPED")
+                continue
+            total = 0
+            for _ in range(1000):
+                arr = generate_data(size, "random")
+                t = test_algorithm(algo, arr)
+                if t:
+                    total += t
+            print(f"  {name:15s}: {total:.2f}s total")
+    
+    # 2. Medium Arrays
+    print("\n" + "-"*50)
+    print("MEDIUM ARRAYS (Random Data)")
+    print("-"*50)
+    for size in [1000, 5000, 10000]:
+        print(f"\nSize {size}:")
+        for name, algo in algorithms.items():
+            if size > 5000 and name in ['Bubble Sort', 'Insertion Sort', 'Selection Sort']:
+                print(f"  {name:15s}: SKIPPED")
+                continue
+            run_test(name, algo, size)
+    
+    # 3. Large Arrays
+    print("\n" + "-"*50)
+    print("LARGE ARRAYS (Random Data)")
+    print("-"*50)
+    for size in [100000, 500000]:
+        print(f"\nSize {size}:")
+        for name, algo in algorithms.items():
+            if name in ['Bubble Sort', 'Insertion Sort', 'Selection Sort']:
+                continue
+            run_test(name, algo, size)
+    
+    # 4. Different Data Structures
+    print("\n" + "-"*50)
+    print("DIFFERENT DATA STRUCTURES (Size 100,000)")
+    print("-"*50)
+    structures = ['random', 'sorted', 'reverse', 'almost_sorted', 'few_unique']
+    for struct in structures:
+        print(f"\n{struct.upper()}:")
+        for name, algo in algorithms.items():
+            if name in ['Bubble Sort', 'Insertion Sort', 'Selection Sort']:
+                continue
+            run_test(name, algo, 100000, struct)
+    
+    # 5. Half Sorted
+    print("\n" + "-"*50)
+    print("HALF SORTED ARRAYS (Size 100,000)")
+    print("-"*50)
+    for name, algo in algorithms.items():
+        if name in ['Bubble Sort', 'Insertion Sort', 'Selection Sort']:
+            continue
+        run_test(name, algo, 100000, "half_sorted")
+    
+    # 6. Different Data Types
+    print("\n" + "-"*50)
+    print("DIFFERENT DATA TYPES (Size 50,000)")
+    print("-"*50)
+    for dtype in ['integers', 'floats', 'strings']:
+        print(f"\n{dtype.upper()}:")
+        for name, algo in algorithms.items():
+            if name in ['Bubble Sort', 'Insertion Sort', 'Selection Sort']:
+                continue
+            run_test(name, algo, 50000, dtype)
     
     print("\n" + "="*60)
-    print("EXPERIMENT COMPLETE")
+    print("TESTING COMPLETE")
     print("="*60)
 
 
 if __name__ == "__main__":
+    random.seed(42)
     main()
