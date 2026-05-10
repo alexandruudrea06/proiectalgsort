@@ -21,7 +21,6 @@ data_small = {
 df_small = pd.DataFrame(data_small)
 df_small = df_small.set_index('Algorithm')
 
-# Create a figure with 4 subplots (2x2)
 fig, axes = plt.subplots(2, 2, figsize=(14, 10))
 axes = axes.flatten()
 
@@ -34,33 +33,20 @@ sizes_info = [
 
 for idx, (col, title_name) in enumerate(sizes_info):
     ax = axes[idx]
-
     sorted_series = df_small[col].sort_values()
     sorted_series.plot(kind='bar', ax=ax, color='steelblue', edgecolor='black')
-
     ax.set_title(f'Small Lists - {title_name}', fontsize=12, fontweight='bold')
     ax.set_ylabel('Total Time (seconds)')
     ax.set_xlabel('Algorithm')
     ax.tick_params(axis='x', rotation=45)
     ax.grid(axis='y', alpha=0.3)
 
-    # Add values on bars
     for i, (bar, val) in enumerate(zip(ax.patches, sorted_series)):
-        ax.text(
-            bar.get_x() + bar.get_width() / 2,
-            bar.get_height() + max(df_small[col]) * 0.01,
-            f'{val:.2f}s',
-            ha='center',
-            va='bottom',
-            fontsize=9
-        )
+        ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + max(df_small[col]) * 0.01,
+                f'{val:.2f}s', ha='center', va='bottom', fontsize=9)
 
-plt.suptitle(
-    'Figure 1: Many Small Lists - Total Time for 100,000 lists (ALL sizes including 100)',
-    fontsize=14,
-    fontweight='bold'
-)
-
+plt.suptitle('Figure 1: Many Small Lists - Total Time for 100,000 lists (ALL sizes including 100)',
+             fontsize=14, fontweight='bold')
 plt.tight_layout()
 plt.savefig('figure1_small_lists.png', dpi=150, bbox_inches='tight')
 plt.show()
@@ -73,21 +59,18 @@ data_medium = {
     '1,000': [0.284, 0.018, 0.022, 0.002, 0.001, 0.002, 0.000],
     '5,000': [7.50, 2.19, 2.22, 0.084, 0.083, 0.013, 0.001],
     '10,000': [22.60, 8.71, 8.51, 0.096, 0.090, 0.104, 0.001],
-    '50,000': [100, 100, 100, 0.497, 0.309, 0.803, 0.082]
+    '50,000': [100, 100, 100, 0.497, 0.309, 0.803, 0.082] 
 }
 
 df_medium = pd.DataFrame(data_medium)
 df_medium = df_medium.set_index('Algorithm')
 
-# Split into O(n²) and O(n log n) for better visualization
 o_n2 = df_medium.loc[['Bubble', 'Insertion', 'Selection']]
 o_nlogn = df_medium.loc[['Merge', 'Quick', 'Heap', 'Timsort']]
 
 fig, axes = plt.subplots(1, 2, figsize=(14, 6))
 
-# O(n²) algorithms (log scale)
 o_n2.T.plot(kind='line', marker='o', ax=axes[0], linewidth=2, markersize=6)
-
 axes[0].set_title('O(n²) Algorithms - Medium Arrays', fontweight='bold')
 axes[0].set_ylabel('Time (seconds) - Log Scale')
 axes[0].set_xlabel('Array Size')
@@ -95,9 +78,7 @@ axes[0].set_yscale('log')
 axes[0].grid(True, alpha=0.3)
 axes[0].legend(title='Algorithm')
 
-# O(n log n) algorithms
 o_nlogn.T.plot(kind='line', marker='s', ax=axes[1], linewidth=2, markersize=6)
-
 axes[1].set_title('O(n log n) Algorithms - Medium Arrays', fontweight='bold')
 axes[1].set_ylabel('Time (seconds)')
 axes[1].set_xlabel('Array Size')
@@ -105,7 +86,6 @@ axes[1].grid(True, alpha=0.3)
 axes[1].legend(title='Algorithm')
 
 plt.suptitle('Figure 2: Medium Arrays (Random Data)', fontsize=14, fontweight='bold')
-
 plt.tight_layout()
 plt.savefig('figure2_medium_arrays.png', dpi=150, bbox_inches='tight')
 plt.show()
@@ -124,15 +104,8 @@ df_large = pd.DataFrame(data_large)
 df_large = df_large.set_index('Algorithm')
 
 fig, ax = plt.subplots(figsize=(10, 6))
-
 df_large.T.plot(kind='line', marker='o', ax=ax, linewidth=2, markersize=8)
-
-ax.set_title(
-    'Figure 3: Large Arrays (Random Data) - O(n log n) Algorithms',
-    fontsize=14,
-    fontweight='bold'
-)
-
+ax.set_title('Figure 3: Large Arrays (Random Data) - O(n log n) Algorithms', fontsize=14, fontweight='bold')
 ax.set_ylabel('Time (seconds)')
 ax.set_xlabel('Array Size')
 ax.grid(True, alpha=0.3)
@@ -157,7 +130,6 @@ df_massive = df_massive.set_index('Algorithm')
 
 fig, ax = plt.subplots(figsize=(12, 7))
 
-# Bar chart for massive arrays
 x = np.arange(len(df_massive.columns))
 width = 0.2
 multiplier = 0
@@ -169,15 +141,9 @@ for algo, times in df_massive.iterrows():
 
 ax.set_xticks(x + width * 1.5)
 ax.set_xticklabels(['10 Million', '100 Million', '1 Billion'])
-
 ax.set_ylabel('Time (seconds) - Log Scale')
 ax.set_xlabel('Array Size')
-
-ax.set_title(
-    'Figure 4: Massive Arrays - O(n log n) Algorithms',
-    fontweight='bold'
-)
-
+ax.set_title('Figure 4: Massive Arrays - O(n log n) Algorithms', fontweight='bold')
 ax.set_yscale('log')
 ax.legend(title='Algorithm', loc='upper left')
 ax.grid(axis='y', alpha=0.3)
@@ -202,21 +168,12 @@ df_struct = pd.DataFrame(data_structures)
 df_struct = df_struct.set_index('Algorithm')
 
 fig, ax = plt.subplots(figsize=(12, 6))
-
 df_struct.T.plot(kind='bar', ax=ax, edgecolor='black', width=0.7)
-
-ax.set_title(
-    'Figure 5: Performance on Different Data Structures (1,000,000 elements)',
-    fontsize=14,
-    fontweight='bold'
-)
-
+ax.set_title('Figure 5: Performance on Different Data Structures (1,000,000 elements)', fontsize=14, fontweight='bold')
 ax.set_ylabel('Time (seconds) - Log Scale')
 ax.set_xlabel('Data Structure Type')
 ax.set_yscale('log')
-
 ax.legend(title='Algorithm', loc='upper left', bbox_to_anchor=(1.02, 1))
-
 ax.tick_params(axis='x', rotation=45)
 ax.grid(axis='y', alpha=0.3)
 
@@ -235,38 +192,17 @@ data_half = {
 df_half = pd.DataFrame(data_half)
 
 fig, ax = plt.subplots(figsize=(8, 5))
-
 colors = ['steelblue', 'lightblue', 'cornflowerblue', 'navy']
-
-bars = ax.bar(
-    df_half['Algorithm'],
-    df_half['Time'],
-    color=colors,
-    edgecolor='black'
-)
-
-ax.set_title(
-    'Figure 6: Half Sorted Arrays (1,000,000 elements)',
-    fontsize=14,
-    fontweight='bold'
-)
-
+bars = ax.bar(df_half['Algorithm'], df_half['Time'], color=colors, edgecolor='black')
+ax.set_title('Figure 6: Half Sorted Arrays (1,000,000 elements)', fontsize=14, fontweight='bold')
 ax.set_ylabel('Time (seconds) - Log Scale')
 ax.set_yscale('log')
 ax.grid(axis='y', alpha=0.3)
 
-# Add value labels on bars
 for bar in bars:
     height = bar.get_height()
-
-    ax.annotate(
-        f'{height:.2f}s',
-        xy=(bar.get_x() + bar.get_width() / 2, height),
-        xytext=(0, 5),
-        textcoords="offset points",
-        ha='center',
-        va='bottom'
-    )
+    ax.annotate(f'{height:.2f}s', xy=(bar.get_x() + bar.get_width() / 2, height),
+                xytext=(0, 5), textcoords="offset points", ha='center', va='bottom')
 
 plt.tight_layout()
 plt.savefig('figure6_half_sorted.png', dpi=150, bbox_inches='tight')
@@ -285,39 +221,28 @@ data_types = {
 df_types = pd.DataFrame(data_types)
 df_types = df_types.set_index('Algorithm')
 
-# Separate O(n²) and O(n log n) for better scale
 o_n2_types = df_types.loc[['Bubble', 'Insertion', 'Selection']]
 o_nlogn_types = df_types.loc[['Merge', 'Quick', 'Heap', 'Timsort']]
 
-# Plot O(n²) on left subplot, O(n log n) on right
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
 
 o_n2_types.T.plot(kind='bar', ax=ax1, edgecolor='black')
-
 ax1.set_title('O(n²) Algorithms', fontweight='bold')
 ax1.set_ylabel('Time (seconds)')
 ax1.set_xlabel('Data Type')
-
 ax1.legend(title='Algorithm', loc='upper left')
 ax1.tick_params(axis='x', rotation=0)
 ax1.grid(axis='y', alpha=0.3)
 
 o_nlogn_types.T.plot(kind='bar', ax=ax2, edgecolor='black')
-
 ax2.set_title('O(n log n) Algorithms', fontweight='bold')
 ax2.set_ylabel('Time (seconds)')
 ax2.set_xlabel('Data Type')
-
 ax2.legend(title='Algorithm', loc='upper left')
 ax2.tick_params(axis='x', rotation=0)
 ax2.grid(axis='y', alpha=0.3)
 
-plt.suptitle(
-    'Figure 7: Performance on Different Data Types (100,000 elements)',
-    fontsize=14,
-    fontweight='bold'
-)
-
+plt.suptitle('Figure 7: Performance on Different Data Types (100,000 elements)', fontsize=14, fontweight='bold')
 plt.tight_layout()
 plt.savefig('figure7_data_types.png', dpi=150, bbox_inches='tight')
 plt.show()
@@ -327,35 +252,20 @@ plt.show()
 # ============================================================
 fig, ax = plt.subplots(figsize=(12, 6))
 
-# Comparison at 1M random data
 x = ['Merge Sort', 'Quick Sort', 'Heap Sort', 'Timsort']
 times = [14.61, 11.18, 27.51, 0.91]
-
 normalized_to_timsort = [t / 0.91 for t in times]
 
 colors = ['coral', 'orange', 'salmon', 'forestgreen']
-
 bars = ax.bar(x, normalized_to_timsort, color=colors, edgecolor='black')
-
-ax.set_title(
-    'Figure 8: Performance Ratio vs Timsort (1,000,000 random elements)',
-    fontsize=14,
-    fontweight='bold'
-)
-
+ax.set_title('Figure 8: Performance Ratio vs Timsort (1,000,000 random elements)', fontsize=14, fontweight='bold')
 ax.set_ylabel('Times slower than Timsort (log scale)')
 ax.set_yscale('log')
 ax.grid(axis='y', alpha=0.3)
 
 for bar, val in zip(bars, normalized_to_timsort):
-    ax.annotate(
-        f'{val:.1f}x',
-        xy=(bar.get_x() + bar.get_width() / 2, bar.get_height()),
-        xytext=(0, 5),
-        textcoords="offset points",
-        ha='center',
-        va='bottom'
-    )
+    ax.annotate(f'{val:.1f}x', xy=(bar.get_x() + bar.get_width() / 2, bar.get_height()),
+                xytext=(0, 5), textcoords="offset points", ha='center', va='bottom')
 
 plt.tight_layout()
 plt.savefig('figure8_normalized_comparison.png', dpi=150, bbox_inches='tight')
