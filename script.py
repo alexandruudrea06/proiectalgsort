@@ -4,7 +4,7 @@ import string
 import sys
 import gc
 
-sys.setrecursionlimit(10_000_000)  # crescut pentru recursivitate adâncă
+sys.setrecursionlimit(10_000_000)
 
 class SortingAlgorithms:
     @staticmethod
